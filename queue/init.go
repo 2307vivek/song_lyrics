@@ -1,6 +1,8 @@
 package queue
 
 import (
+	"fmt"
+
 	"github.com/2307vivek/song-lyrics/utils"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -17,7 +19,7 @@ func initRabbitMq(url string, queueName string) (*amqp.Channel, *amqp.Queue) {
 	conn := connectToRabbitMq(url)
 
 	channel, err := conn.Channel()
-	utils.FailOnError(err, "Failed to create channel")
+	utils.FailOnError(err, fmt.Sprintf("Failed to create channel %s\n", queueName))
 	defer channel.Close()
 
 	queue, err := channel.QueueDeclare(
@@ -28,7 +30,7 @@ func initRabbitMq(url string, queueName string) (*amqp.Channel, *amqp.Queue) {
 		false, // no-wait
 		nil,   // arguments
 	)
-	utils.FailOnError(err, "Failed to create queue")
+	utils.FailOnError(err, fmt.Sprintf("Failed to create queue %s\n", queueName))
 
 	return channel, &queue
 }
