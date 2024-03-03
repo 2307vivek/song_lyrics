@@ -9,10 +9,11 @@ import (
 
 var SongQ *SongQueue
 
-func CreateSongQueue(url string, queueName string) {
-	channel, queue := initRabbitMq(url, queueName)
+func CreateSongQueue(url string, queueName string) (*amqp.Connection, *amqp.Channel) {
+	channel, queue, conn := initRabbitMq(url, queueName)
 
 	SongQ = &SongQueue{channel, queue}
+	return conn, channel
 }
 
 func (queue *SongQueue) Publish(ctx context.Context, msg []byte) {

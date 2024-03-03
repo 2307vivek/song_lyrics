@@ -10,17 +10,15 @@ import (
 func connectToRabbitMq(url string) *amqp.Connection {
 	conn, err := amqp.Dial(url)
 	utils.FailOnError(err, "Failed to connect to rabbitmq.")
-	defer conn.Close()
 
 	return conn
 }
 
-func initRabbitMq(url string, queueName string) (*amqp.Channel, *amqp.Queue) {
+func initRabbitMq(url string, queueName string) (*amqp.Channel, *amqp.Queue, *amqp.Connection) {
 	conn := connectToRabbitMq(url)
 
 	channel, err := conn.Channel()
 	utils.FailOnError(err, fmt.Sprintf("Failed to create channel %s\n", queueName))
-	defer channel.Close()
 
 	queue, err := channel.QueueDeclare(
 		queueName,
@@ -32,5 +30,5 @@ func initRabbitMq(url string, queueName string) (*amqp.Channel, *amqp.Queue) {
 	)
 	utils.FailOnError(err, fmt.Sprintf("Failed to create queue %s\n", queueName))
 
-	return channel, &queue
+	return channel, &queue, conn
 }

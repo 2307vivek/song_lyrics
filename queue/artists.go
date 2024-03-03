@@ -4,11 +4,12 @@ import amqp "github.com/rabbitmq/amqp091-go"
 
 var ArtistQ *ArtistQueue
 
-func CreateArtistQueue(url string, queueName string) {
-	channel, queue := initRabbitMq(url, queueName)
+func CreateArtistQueue(url string, queueName string) (*amqp.Connection, *amqp.Channel) {
+	channel, queue, conn := initRabbitMq(url, queueName)
 
-	ArtistQ.Channel = channel
-	ArtistQ.Queue = queue
+	ArtistQ = &ArtistQueue{channel, queue}
+
+	return conn, channel
 }
 
 type ArtistQueue struct {
