@@ -12,5 +12,7 @@ func main() {
 		handler.ScrapeArtists()
 	} else if instance == "artists" {
 		handler.ScrapeArtists()
+	} else {
+		os.Exit(1)
 	}
 }
