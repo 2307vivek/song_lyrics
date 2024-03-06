@@ -14,6 +14,20 @@ func CreateArtistQueue(queueName string) (*ArtistQueue) {
 	return artistQ
 }
 
+func (queue *ArtistQueue) Publish(ctx context.Context, msg []byte) {
+	err := queue.Channel.PublishWithContext(ctx,
+		"",
+		queue.Queue.Name,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        msg,
+		},
+	)
+	utils.FailOnError(err, fmt.Sprintf("Failed to publish message for queue %s\n", queue.Queue.Name))
+}
+
 func (queue *ArtistQueue) Consume(ctx context.Context, autoAck bool) <- chan amqp.Delivery {
 	msg, err := queue.Channel.Consume(
 		queue.Queue.Name,
