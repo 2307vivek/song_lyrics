@@ -29,7 +29,6 @@ func ScrapeArtistLinks() {
 	})
 
 	c.Visit("https://www.vagalume.com.br/browse/0-9.html")
-
 	for char := 97; char <= 122; char++ {
 		c.Visit("https://www.vagalume.com.br/browse/" + string(rune(char)) + ".html")
 	}
