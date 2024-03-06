@@ -3,16 +3,15 @@ package main
 import (
 	"os"
 
-	"github.com/2307vivek/song-lyrics/database"
-	"github.com/2307vivek/song-lyrics/handler"
-	"github.com/2307vivek/song-lyrics/queue"
-	"github.com/2307vivek/song-lyrics/utils"
-	"github.com/joho/godotenv"
+"github.com/2307vivek/song-lyrics/database"
+"github.com/2307vivek/song-lyrics/handler"
+"github.com/2307vivek/song-lyrics/queue"
+"github.com/2307vivek/song-lyrics/utils"
+"github.com/joho/godotenv"
 )
-
 func main() {
 	instance := os.Args[1]
-	if instance != "lyrics" && instance != "artist" {
+	if instance != "lyrics" && instance != "artist" && instance != "artist_links" {
 		os.Exit(1)
 	}
 
@@ -29,5 +28,7 @@ func main() {
 		handler.ScrapeArtists()
 	} else if instance == "lyrics" {
 		handler.ScrapeLyrics()
+	} else if instance == "artist_links" {
+		handler.ScrapeArtistLinks()
 	}
 }
