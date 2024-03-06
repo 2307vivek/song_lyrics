@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/2307vivek/song-lyrics/database"
 	"github.com/2307vivek/song-lyrics/handler"
 	"github.com/2307vivek/song-lyrics/queue"
 	"github.com/2307vivek/song-lyrics/utils"
@@ -18,17 +19,11 @@ func main() {
 	err := godotenv.Load(".env")
 	utils.FailOnError(err, "Failed to load .env")
 
+	database.ConnectToRedis(os.Getenv("REDIS_URL"))
+	
 	rabbitmqUrl := os.Getenv("RABBIT_MQ_URL")
-	songQueueName := os.Getenv("SONG_QUEUE_NAME")
-	artistQueueName := os.Getenv("ARTIST_QUEUE_NAME")
-
-	songConnection, songChannel := queue.CreateSongQueue(rabbitmqUrl, songQueueName)
-	defer songConnection.Close()
-	defer songChannel.Close()
-
-	artistConnection, artistChannel := queue.CreateArtistQueue(rabbitmqUrl, artistQueueName)
-	defer artistConnection.Close()
-	defer artistChannel.Close()
+	queue.ConnectToRabbitMq(rabbitmqUrl)
+	defer queue.Conn.Close()
 
 	if instance == "artist" {
 		handler.ScrapeArtists()

@@ -2,32 +2,31 @@ package queue
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/2307vivek/song-lyrics/utils"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-var SongQ *SongQueue
+func CreateSongQueue(queueName string) (*SongQueue) {
+	channel, queue := createChannel(queueName)
 
-func CreateSongQueue(url string, queueName string) (*amqp.Connection, *amqp.Channel) {
-	channel, queue, conn := initRabbitMq(url, queueName)
-
-	SongQ = &SongQueue{channel, queue}
-	return conn, channel
+	songQ := &SongQueue{channel, queue}
+	return songQ
 }
 
 func (queue *SongQueue) Publish(ctx context.Context, msg []byte) {
-	err := queue.Channel.PublishWithContext(ctx, 
+	err := queue.Channel.PublishWithContext(ctx,
 		"",
 		queue.Queue.Name,
 		false,
 		false,
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body: msg,
+			Body:        msg,
 		},
 	)
-	utils.FailOnError(err, "Failed to publish message")
+	utils.FailOnError(err, fmt.Sprintf("Failed to publish message for queue %s\n", queue.Queue.Name))
 }
 
 type SongQueue struct {

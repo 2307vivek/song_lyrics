@@ -7,17 +7,18 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func connectToRabbitMq(url string) *amqp.Connection {
-	conn, err := amqp.Dial(url)
+var Conn *amqp.Connection
+
+func ConnectToRabbitMq(url string) {
+	c, err := amqp.Dial(url)
 	utils.FailOnError(err, "Failed to connect to rabbitmq.")
 
-	return conn
+	Conn = c
 }
 
-func initRabbitMq(url string, queueName string) (*amqp.Channel, *amqp.Queue, *amqp.Connection) {
-	conn := connectToRabbitMq(url)
+func createChannel(queueName string) (*amqp.Channel, *amqp.Queue) {
 
-	channel, err := conn.Channel()
+	channel, err := Conn.Channel()
 	utils.FailOnError(err, fmt.Sprintf("Failed to create channel %s\n", queueName))
 
 	queue, err := channel.QueueDeclare(
@@ -30,5 +31,5 @@ func initRabbitMq(url string, queueName string) (*amqp.Channel, *amqp.Queue, *am
 	)
 	utils.FailOnError(err, fmt.Sprintf("Failed to create queue %s\n", queueName))
 
-	return channel, &queue, conn
+	return channel, &queue
 }
