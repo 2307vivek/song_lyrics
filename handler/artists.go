@@ -20,7 +20,7 @@ func ScrapeArtists() {
 	artistQ := queue.CreateArtistQueue(utils.ARTIST_QUEUE_NAME)
 	defer artistQ.Channel.Close()
 
-	c := utils.CreateColly(true, 20, 2 * time.Second)
+	c := utils.CreateColly(false, 20, 2 * time.Second)
 
 	c.OnHTML("#alfabetMusicList a.nameMusic[href]", func(h *colly.HTMLElement) {
 		songLink := h.Attr("href")
@@ -40,7 +40,6 @@ func ScrapeArtists() {
 			artist.Ack(false)
 		}
 	}()
-	c.Wait()
 
 	fmt.Println("Waiting for artist links.")
 	<- forever
