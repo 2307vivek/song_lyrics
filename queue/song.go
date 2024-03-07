@@ -29,6 +29,21 @@ func (queue *SongQueue) Publish(ctx context.Context, msg []byte) {
 	utils.FailOnError(err, fmt.Sprintf("Failed to publish message for queue %s\n", queue.Queue.Name))
 }
 
+func (queue *SongQueue) Consume(ctx context.Context, autoAck bool) <- chan amqp.Delivery {
+	msg, err := queue.Channel.Consume(
+		queue.Queue.Name,
+		"",    // consumer
+		autoAck,  // auto-ack
+		false, // exclusive
+		false, // no-local
+		false, // no-wait
+		nil,   // args
+	)
+	utils.FailOnError(err, fmt.Sprintf("Failed to consume messages for queue %s\n", queue.Queue.Name))
+
+	return msg
+}
+
 type SongQueue struct {
 	Channel *amqp.Channel
 	Queue   *amqp.Queue
