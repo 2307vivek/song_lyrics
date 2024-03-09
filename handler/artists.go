@@ -24,6 +24,7 @@ func ScrapeArtists() {
 
 	c.OnHTML("#alfabetMusicList a.nameMusic[href]", func(h *colly.HTMLElement) {
 		songLink := h.Attr("href")
+		songLink = h.Request.AbsoluteURL(songLink)
 		
 		fmt.Println("publishing", songLink)
 		
