@@ -11,10 +11,6 @@ func CreateColly(async bool, parallelism int, delay time.Duration) *colly.Collec
 	c := colly.NewCollector()
 	c.Async = async
 
-	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("error occurre", err)
-	})
-
 	c.OnRequest(func(r *colly.Request) {
 		fmt.Println("Requesting to ", r.URL)
 	})
