@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"context"
+	//"context"
 	"fmt"
-	"strings"
+	//"strings"
 	"time"
 
 	"github.com/2307vivek/song-lyrics/queue"
@@ -13,19 +13,16 @@ import (
 )
 
 func ScrapeLyrics() {
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	songQ := queue.CreateSongQueue(utils.SONG_QUEUE_NAME)
 	defer songQ.Channel.Close()
 
-	c := utils.CreateColly(false, 20, 2*time.Second)
+	c := utils.CreateColly(true, 9, 1000*time.Millisecond)
 
 	c.OnHTML("#lyrics", func(h *colly.HTMLElement) {
 		link := h.Request.URL.String()
+		link = h.Request.AbsoluteURL(link)
 
-		fmt.Println("visiting", link)
+		fmt.Println("scraping", link)
 
 		var ly []string
 		h.DOM.Contents().Each(func(i int, s *goquery.Selection) {
@@ -33,21 +30,22 @@ func ScrapeLyrics() {
 				ly = append(ly, s.Text())
 			}
 		})
-		lyrics := strings.Join(ly, " ")
-		fmt.Println(lyrics)
+		// lyrics := strings.Join(ly, " ")
+		// fmt.Println(lyrics)
 	})
 
-	songs := songQ.Consume(ctx, false)
+	songs := songQ.Consume(false, 10)
 
 	var forever chan struct{}
 	go func() {
 		for song := range songs {
-			songLink := song.Body
-			c.Visit(string(songLink))
+			songLink := string(song.Body)
+			c.Visit(songLink)
 			song.Ack(false)
+			time.Sleep(100 * time.Millisecond)
 		}
 	}()
-	//c.Wait()
+	c.Wait()
 
 	fmt.Println("Waiting for song links.")
 	<-forever

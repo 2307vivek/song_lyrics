@@ -8,7 +8,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func CreateSongQueue(queueName string) (*SongQueue) {
+func CreateSongQueue(queueName string) *SongQueue {
 	channel, queue := createChannel(queueName)
 
 	songQ := &SongQueue{channel, queue}
@@ -29,15 +29,22 @@ func (queue *SongQueue) Publish(ctx context.Context, msg []byte) {
 	utils.FailOnError(err, fmt.Sprintf("Failed to publish message for queue %s\n", queue.Queue.Name))
 }
 
-func (queue *SongQueue) Consume(ctx context.Context, autoAck bool) <- chan amqp.Delivery {
+func (queue *SongQueue) Consume(autoAck bool, prefetch int) <-chan amqp.Delivery {
+	err := queue.Channel.Qos(
+		prefetch,     // prefetch count
+		0,     // prefetch size
+		false, // global
+	)
+	utils.FailOnError(err, "Failed to set QoS")
+
 	msg, err := queue.Channel.Consume(
 		queue.Queue.Name,
-		"",    // consumer
-		autoAck,  // auto-ack
-		false, // exclusive
-		false, // no-local
-		false, // no-wait
-		nil,   // args
+		"",      // consumer
+		autoAck, // auto-ack
+		false,   // exclusive
+		false,   // no-local
+		false,   // no-wait
+		nil,     // args
 	)
 	utils.FailOnError(err, fmt.Sprintf("Failed to consume messages for queue %s\n", queue.Queue.Name))
 
@@ -45,6 +52,6 @@ func (queue *SongQueue) Consume(ctx context.Context, autoAck bool) <- chan amqp.
 }
 
 type SongQueue struct {
-	Channel *amqp.Channel
-	Queue   *amqp.Queue
+	Channel     *amqp.Channel
+	Queue       *amqp.Queue
 }
