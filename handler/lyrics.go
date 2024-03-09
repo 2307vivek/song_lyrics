@@ -1,9 +1,7 @@
 package handler
 
 import (
-	//"context"
 	"fmt"
-	//"strings"
 	"time"
 
 	"github.com/2307vivek/song-lyrics/queue"
