@@ -14,7 +14,9 @@ func ScrapeLyrics() {
 	songQ := queue.CreateSongQueue(utils.SONG_QUEUE_NAME)
 	defer songQ.Channel.Close()
 
-	c := utils.CreateColly(true, 9, 1000*time.Millisecond)
+	c := utils.CreateColly(true, 9, 100*time.Millisecond)
+
+	count := 0
 
 	c.OnHTML("#lyrics", func(h *colly.HTMLElement) {
 		link := h.Request.URL.String()
@@ -30,6 +32,8 @@ func ScrapeLyrics() {
 		})
 		// lyrics := strings.Join(ly, " ")
 		// fmt.Println(lyrics)
+		count--
+		fmt.Println(count)
 	})
 
 	songs := songQ.Consume(false, 10)
@@ -39,8 +43,9 @@ func ScrapeLyrics() {
 		for song := range songs {
 			songLink := string(song.Body)
 			c.Visit(songLink)
-			song.Ack(false)
 			time.Sleep(100 * time.Millisecond)
+			song.Ack(false)
+			count++
 		}
 	}()
 	c.Wait()
