@@ -14,7 +14,7 @@ func ScrapeLyrics() {
 	songQ := queue.CreateSongQueue(utils.SONG_QUEUE_NAME)
 	defer songQ.Channel.Close()
 
-	c := utils.CreateColly(true, 9, 100*time.Millisecond)
+	c := utils.CreateColly(true, 15, 100*time.Millisecond)
 
 	count := 0
 
