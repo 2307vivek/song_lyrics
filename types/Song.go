@@ -5,3 +5,8 @@ type Song struct {
 	Url string `json:"url"`
 	Artist Artist `json:"aritst"`
 }
+
+type SongLyrics struct {
+	Lyric string
+	Song  Song
+}

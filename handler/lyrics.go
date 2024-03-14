@@ -36,13 +36,15 @@ func ScrapeLyrics() {
 		})
 		lyrics := strings.Join(ly, " ")
 
-		songLyrics := SongLyrics{
-			lyric: lyrics,
-			song:  songMap[link],
+		songLyrics := types.SongLyrics{
+			Lyric: lyrics,
+			Song:  songMap[link],
 		}
 
-		fmt.Println(songLyrics.lyric)
-		fmt.Println(songLyrics.song.Name)
+		delete(songMap, link)
+
+		fmt.Println(songLyrics.Lyric)
+		fmt.Println(songLyrics.Song.Name)
 
 		//fmt.Println(lyrics)
 		//database.AddToCache(utils.SONG_BLOOM_FILTER_NAME, songLyrics.song.Artist.Name + ":" + songLyrics.song.Name)
@@ -71,9 +73,4 @@ func ScrapeLyrics() {
 
 	fmt.Println("Waiting for song links.")
 	<-forever
-}
-
-type SongLyrics struct {
-	lyric string
-	song  types.Song
 }
