@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/2307vivek/song-lyrics/queue"
+	"github.com/2307vivek/song-lyrics/types"
 	"github.com/2307vivek/song-lyrics/utils"
 	"github.com/gocolly/colly"
 )
@@ -20,15 +21,36 @@ func ScrapeArtists() {
 	artistQ := queue.CreateArtistQueue(utils.ARTIST_QUEUE_NAME)
 	defer artistQ.Channel.Close()
 
-	c := utils.CreateColly(false, 20, 2 * time.Second)
+	c := utils.CreateColly(false, 20, 2*time.Second)
 
 	c.OnHTML("#alfabetMusicList a.nameMusic[href]", func(h *colly.HTMLElement) {
 		songLink := h.Attr("href")
 		songLink = h.Request.AbsoluteURL(songLink)
-		
+
 		fmt.Println("publishing", songLink)
-		
+
 		songQ.Publish(ctx, []byte(songLink))
+	})
+
+	c.OnHTML("body", func(h *colly.HTMLElement) {
+		artist := types.Artist{}
+		h.ForEach("#artHeaderTitle .darkBG a", func(i int, e *colly.HTMLElement) {
+			artist.Name = e.Text
+			artist.Url = h.Request.AbsoluteURL(e.Attr("href"))
+		})
+
+		h.ForEach("#artHeaderImg img", func(i int, e *colly.HTMLElement) {
+			artist.PicUrl = h.Request.AbsoluteURL(e.Attr("src"))
+		})
+
+		h.ForEach("#alfabetMusicList a.nameMusic[href]", func(i int, e *colly.HTMLElement) {
+			songLink := h.Attr("href")
+			songLink = h.Request.AbsoluteURL(songLink)
+
+			fmt.Println("publishing", songLink)
+
+			songQ.Publish(ctx, []byte(songLink))
+		})
 	})
 
 	artists := artistQ.Consume(ctx, false)
@@ -43,5 +65,5 @@ func ScrapeArtists() {
 	}()
 
 	fmt.Println("Waiting for artist links.")
-	<- forever
+	<-forever
 }
