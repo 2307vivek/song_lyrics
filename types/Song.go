@@ -1,7 +1,7 @@
 package types
 
 type Song struct {
-	Name string
-	Url string
-	Artist Artist
+	Name string `json:"name"`
+	Url string `json:"url"`
+	Artist Artist `json:"aritst"`
 }
