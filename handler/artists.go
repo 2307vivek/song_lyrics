@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/2307vivek/song-lyrics/database"
 	"github.com/2307vivek/song-lyrics/queue"
 	"github.com/2307vivek/song-lyrics/types"
 	"github.com/2307vivek/song-lyrics/utils"
@@ -25,7 +26,7 @@ func ScrapeArtists() {
 	c := utils.CreateColly(false, 20, 2*time.Second)
 
 	c.OnHTML("body", func(h *colly.HTMLElement) {
-		fmt.Println("body")
+		artistLink := h.Request.URL.String()
 		artist := types.Artist{}
 
 		h.ForEach("#artHeaderTitle .darkBG a", func(i int, e *colly.HTMLElement) {
@@ -53,15 +54,20 @@ func ScrapeArtists() {
 				songQ.Publish(ctx, j)
 			}
 		})
+		database.AddToCache(utils.ARTIST_BLOOM_FILTER_NAME, artistLink)
 	})
 
-	artists := artistQ.Consume(ctx, false)
+	artists := artistQ.Consume(false, 5)
 
 	var forever chan struct{}
 	go func() {
 		for artist := range artists {
-			artistLink := artist.Body
-			c.Visit(string(artistLink))
+			artistLink := string(artist.Body)
+			
+			if !database.Exists(utils.ARTIST_BLOOM_FILTER_NAME, artistLink) {
+				fmt.Printf("artistLink: %v\n", artistLink)
+				c.Visit(artistLink)	
+			}
 			artist.Ack(false)
 		}
 	}()
