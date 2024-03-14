@@ -19,13 +19,13 @@ func ConnectToRedis(url string) {
 	createContext()
 }
 
-func CheckCache(key string, url string) bool {
-	exists :=  Rdb.BFExists(ctx, key, url).Val()
+func Exists(cache string, item string) bool {
+	exists :=  Rdb.BFExists(ctx, cache, item).Val()
 	return exists
 }
 
-func AddToCache(key string, url string) bool {
-	isadded := Rdb.BFAdd(ctx, key, url).Val()
+func AddToCache(cache string, item string) bool {
+	isadded := Rdb.BFAdd(ctx, cache, item).Val()
 	return isadded
 }
 
