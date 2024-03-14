@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	//"github.com/2307vivek/song-lyrics/database"
+	"github.com/2307vivek/song-lyrics/database"
 	"github.com/2307vivek/song-lyrics/queue"
 	"github.com/2307vivek/song-lyrics/types"
 	"github.com/2307vivek/song-lyrics/utils"
@@ -15,6 +15,9 @@ import (
 )
 
 func ScrapeLyrics() {
+
+	go SongStore(100)
+
 	songQ := queue.CreateSongQueue(utils.SONG_QUEUE_NAME)
 	defer songQ.Channel.Close()
 
@@ -46,8 +49,9 @@ func ScrapeLyrics() {
 		fmt.Println(songLyrics.Lyric)
 		fmt.Println(songLyrics.Song.Name)
 
-		//fmt.Println(lyrics)
-		//database.AddToCache(utils.SONG_BLOOM_FILTER_NAME, songLyrics.song.Artist.Name + ":" + songLyrics.song.Name)
+		SongLyricStore <- songLyrics
+
+		database.AddToCache(utils.SONG_BLOOM_FILTER_NAME, songLyrics.Song.Name + songLyrics.Song.Artist.Name)
 	})
 
 	songs := songQ.Consume(false, 10)
@@ -61,8 +65,10 @@ func ScrapeLyrics() {
 			if err == nil {
 				songLink := s.Url
 				songMap[songLink] = s
-				c.Visit(songLink)
-				time.Sleep(100 * time.Millisecond)
+				if !database.Exists(utils.SONG_BLOOM_FILTER_NAME, s.Name + s.Artist.Name) {
+					c.Visit(songLink)
+				  time.Sleep(100 * time.Millisecond)	
+				}
 				song.Ack(false)
 			} else {
 				fmt.Println(err)
