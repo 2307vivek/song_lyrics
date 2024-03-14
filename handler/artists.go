@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -23,33 +24,37 @@ func ScrapeArtists() {
 
 	c := utils.CreateColly(false, 20, 2*time.Second)
 
-	c.OnHTML("#alfabetMusicList a.nameMusic[href]", func(h *colly.HTMLElement) {
-		songLink := h.Attr("href")
-		songLink = h.Request.AbsoluteURL(songLink)
-
-		fmt.Println("publishing", songLink)
-
-		songQ.Publish(ctx, []byte(songLink))
-	})
-
 	c.OnHTML("body", func(h *colly.HTMLElement) {
+		fmt.Println("body")
 		artist := types.Artist{}
+
 		h.ForEach("#artHeaderTitle .darkBG a", func(i int, e *colly.HTMLElement) {
+			fmt.Println("name and url")
 			artist.Name = e.Text
 			artist.Url = h.Request.AbsoluteURL(e.Attr("href"))
 		})
 
 		h.ForEach("#artHeaderImg img", func(i int, e *colly.HTMLElement) {
+			fmt.Println("pic")
 			artist.PicUrl = h.Request.AbsoluteURL(e.Attr("src"))
 		})
 
 		h.ForEach("#alfabetMusicList a.nameMusic[href]", func(i int, e *colly.HTMLElement) {
-			songLink := h.Attr("href")
+			fmt.Println("song")
+			songName := e.Text
+			songLink := e.Attr("href")
 			songLink = h.Request.AbsoluteURL(songLink)
 
-			fmt.Println("publishing", songLink)
+			song := types.Song{
+				Name:   songName,
+				Url:    songLink,
+				Artist: artist,
+			}
 
-			songQ.Publish(ctx, []byte(songLink))
+			j, err := json.Marshal(song)
+			if err == nil {
+				songQ.Publish(ctx, j)
+			}
 		})
 	})
 
