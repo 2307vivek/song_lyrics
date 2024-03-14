@@ -28,7 +28,14 @@ func (queue *ArtistQueue) Publish(ctx context.Context, msg []byte) {
 	utils.FailOnError(err, fmt.Sprintf("Failed to publish message for queue %s\n", queue.Queue.Name))
 }
 
-func (queue *ArtistQueue) Consume(ctx context.Context, autoAck bool) <- chan amqp.Delivery {
+func (queue *ArtistQueue) Consume(autoAck bool, prefetch int) <- chan amqp.Delivery {
+	err := queue.Channel.Qos(
+		prefetch,     // prefetch count
+		0,     // prefetch size
+		false, // global
+	)
+	utils.FailOnError(err, "Failed to set QoS")
+	
 	msg, err := queue.Channel.Consume(
 		queue.Queue.Name,
 		"",    // consumer
