@@ -29,18 +29,15 @@ func ScrapeArtists() {
 		artist := types.Artist{}
 
 		h.ForEach("#artHeaderTitle .darkBG a", func(i int, e *colly.HTMLElement) {
-			fmt.Println("name and url")
 			artist.Name = e.Text
 			artist.Url = h.Request.AbsoluteURL(e.Attr("href"))
 		})
 
 		h.ForEach("#artHeaderImg img", func(i int, e *colly.HTMLElement) {
-			fmt.Println("pic")
 			artist.PicUrl = h.Request.AbsoluteURL(e.Attr("src"))
 		})
 
 		h.ForEach("#alfabetMusicList a.nameMusic[href]", func(i int, e *colly.HTMLElement) {
-			fmt.Println("song")
 			songName := e.Text
 			songLink := e.Attr("href")
 			songLink = h.Request.AbsoluteURL(songLink)
