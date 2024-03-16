@@ -19,6 +19,7 @@ func main() {
 	err := godotenv.Load(".env")
 	utils.FailOnError(err, "Failed to load .env")
 
+	database.ConnectToElasticSearch(os.Getenv("ELASTIC_SEARCH_URL"), os.Getenv("ELASTIC_SEARCH_USERNAME"), os.Getenv("ELASTIC_SERACH_PASSWORD"))
 	database.ConnectToRedis(os.Getenv("REDIS_URL"))
 
 	rabbitmqUrl := os.Getenv("RABBIT_MQ_URL")
