@@ -16,7 +16,7 @@ import (
 
 func ScrapeLyrics() {
 
-	go SongStore(5)
+	go SongStore(100)
 
 	songQ := queue.CreateSongQueue(utils.SONG_QUEUE_NAME)
 	defer songQ.Channel.Close()
@@ -45,9 +45,6 @@ func ScrapeLyrics() {
 		}
 
 		delete(songMap, link)
-
-		fmt.Println(songLyrics.Lyric)
-		fmt.Println(songLyrics.Song.Name)
 
 		SongLyricStore <- songLyrics
 
