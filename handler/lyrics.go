@@ -16,7 +16,7 @@ import (
 
 func ScrapeLyrics() {
 
-	go SongStore(100)
+	go SongStore(5)
 
 	songQ := queue.CreateSongQueue(utils.SONG_QUEUE_NAME)
 	defer songQ.Channel.Close()
