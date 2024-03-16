@@ -7,6 +7,6 @@ type Song struct {
 }
 
 type SongLyrics struct {
-	Lyric string
-	Song  Song
+	Lyric string `json:"lyrics"`
+	Song  Song `json:"song"`
 }
