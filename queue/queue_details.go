@@ -10,9 +10,9 @@ import (
 	"github.com/2307vivek/song-lyrics/types"
 )
 
-func GetQueueDetails(queueName string, vhost string) (types.QueueDetails, error) {
+func GetQueues(vhost string) ([]*types.QueueDetails, error) {
 
-	queueUrl := os.Getenv("RABBITMQ_ADDRESS") + "/api/queues/" + vhost + "/" + queueName
+	queueUrl := os.Getenv("RABBITMQ_ADDRESS") + "/api/queues/" + vhost
 
 	client := &http.Client{}
 
@@ -37,12 +37,12 @@ func GetQueueDetails(queueName string, vhost string) (types.QueueDetails, error)
 		fmt.Println("Error reading response body:", err)
 	}
 
-	queueDetails := &types.QueueDetails{}
+	queueDetails := []*types.QueueDetails{}
 	if resp.Status == "200 OK" {
-		err := json.Unmarshal(body, queueDetails)
+		err := json.Unmarshal(body, &queueDetails)
 		if err != nil {
 			fmt.Println("Error unmarshaing:", err)
 		}
 	}
-	return *queueDetails, err
+	return queueDetails, err
 }
