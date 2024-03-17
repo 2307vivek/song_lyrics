@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/2307vivek/song-lyrics/database"
@@ -22,6 +23,8 @@ func ScrapeArtists() {
 	defer songQ.Channel.Close()
 	artistQ := queue.CreateArtistQueue(utils.ARTIST_QUEUE_NAME)
 	defer artistQ.Channel.Close()
+
+	vhost := os.Getenv("VHOST")
 
 	c := utils.CreateColly(false, 20, 2*time.Second)
 
@@ -57,21 +60,45 @@ func ScrapeArtists() {
 		database.AddToCache(utils.ARTIST_BLOOM_FILTER_NAME, artistLink)
 	})
 
-	artists := artistQ.Consume(false, 5)
+	artists := artistQ.Consume(false, 1)
 
 	var forever chan struct{}
 	go func() {
 		for artist := range artists {
 			artistLink := string(artist.Body)
-			
-			if !database.Exists(utils.ARTIST_BLOOM_FILTER_NAME, artistLink) {
-				fmt.Printf("artistLink: %v\n", artistLink)
-				c.Visit(artistLink)	
+
+			for {
+				queueLength := getQueueLength(vhost)
+				fmt.Printf("songQueueLen: %v\n", queueLength)
+				if queueLength < 8500 {
+					if !database.Exists(utils.ARTIST_BLOOM_FILTER_NAME, artistLink) {
+						fmt.Printf("artistLink: %v\n", artistLink)
+						c.Visit(artistLink)
+					}
+					artist.Ack(false)
+					break
+				} else {
+					timer := time.NewTimer(2 * time.Minute)
+					fmt.Println("waiting to consume songs")
+					<-timer.C
+				}
 			}
-			artist.Ack(false)
 		}
 	}()
 
 	fmt.Println("Waiting for artist links.")
 	<-forever
+}
+
+func getQueueLength(vhost string) int {
+	queues, err := queue.GetQueues(vhost)
+
+	if err != nil {
+		fmt.Println("cannot get details", err)
+	}
+	length := 0
+	for _, queue := range queues {
+		length += queue.Status.Length
+	}
+	return length
 }
