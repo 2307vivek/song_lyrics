@@ -37,7 +37,7 @@ func SongStore(batchSize int) {
 		}
 		songJson = append(songJson, "\n"...)
 
-		if counter == batchSize {
+		if counter >=  batchSize {
 			// flush to db
 			flush(songBuffer)
 			counter = 0
