@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/2307vivek/song-lyrics/database"
@@ -52,7 +53,7 @@ func SongStore(batchSize int) {
 
 func flush(buffer *bytes.Buffer) {
 	fmt.Printf("\"flushing to db\": %v\n", "flushing to db")
-	res, e := database.ES.Bulk(bytes.NewReader(buffer.Bytes()), database.ES.Bulk.WithIndex("sooong"))
+	res, e := database.ES.Bulk(bytes.NewReader(buffer.Bytes()), database.ES.Bulk.WithIndex(os.Getenv("ES_INDEX")))
 	if e != nil {
 		fmt.Println("failed to insert items", e)
 	}
