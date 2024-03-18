@@ -1,12 +1,16 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"sync/atomic"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Status struct {
-	Connections ConnectionStatus `json:"connections"`
-	FailedUrls  []string         `json:"failed_urls"`
-	ScrapedLyrics int `json:"scraped_urls"`
-	ScrapedArtists int `json:"scraped_artists"`
+	Connections    ConnectionStatus `json:"connections"`
+	FailedUrls     []string         `json:"failed_urls"`
+	ScrapedLyrics  int32     `json:"scraped_urls"`
+	ScrapedArtists int32     `json:"scraped_artists"`
 }
 
 type ConnectionStatus struct {
@@ -14,6 +18,9 @@ type ConnectionStatus struct {
 	Es       bool `json:"es"`
 	RabbitMQ bool `json:"rabbit_mq"`
 }
+
+var countLyrics atomic.Int32
+var countArtist atomic.Int32
 
 var AppStatus Status = Status{}
 
@@ -26,4 +33,14 @@ func InitAppStatus() {
 
 func getStatus(c *gin.Context) {
 	c.IndentedJSON(200, AppStatus)
+}
+
+func IncrementCountArtist() {
+	countArtist.Add(1)
+	AppStatus.ScrapedArtists = countArtist.Load()
+}
+
+func IncrementCountLyrics() {
+	countLyrics.Add(1)
+	AppStatus.ScrapedLyrics = countArtist.Load()
 }

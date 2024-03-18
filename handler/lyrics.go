@@ -57,6 +57,8 @@ func ScrapeLyrics() {
 		SongLyricStore <- songLyrics
 
 		database.AddToCache(utils.SONG_BLOOM_FILTER_NAME, songLyrics.Song.Name+songLyrics.Song.Artist.Name)
+
+		api.IncrementCountLyrics()
 	})
 
 	c.OnError(func(r *colly.Response, err error) {

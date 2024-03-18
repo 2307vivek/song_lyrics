@@ -59,6 +59,7 @@ func ScrapeArtists() {
 			}
 		})
 		database.AddToCache(utils.ARTIST_BLOOM_FILTER_NAME, artistLink)
+		api.IncrementCountArtist()
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
