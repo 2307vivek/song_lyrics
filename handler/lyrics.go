@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -18,8 +19,14 @@ func ScrapeLyrics() {
 
 	go SongStore(100)
 
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	songQ := queue.CreateSongQueue(utils.SONG_QUEUE_NAME)
 	defer songQ.Channel.Close()
+
+	songQPublish := queue.CreateSongQueue(utils.SONG_QUEUE_NAME)
+	defer songQPublish.Channel.Close()
 
 	songMap := make(map[string]types.Song)
 
@@ -48,7 +55,19 @@ func ScrapeLyrics() {
 
 		SongLyricStore <- songLyrics
 
-		database.AddToCache(utils.SONG_BLOOM_FILTER_NAME, songLyrics.Song.Name + songLyrics.Song.Artist.Name)
+		database.AddToCache(utils.SONG_BLOOM_FILTER_NAME, songLyrics.Song.Name+songLyrics.Song.Artist.Name)
+	})
+
+	c.OnError(func(r *colly.Response, err error) {
+		link := r.Request.URL.String()
+
+		song := songMap[link]
+
+		s, e := json.Marshal(song)
+
+		if e != nil {
+			songQPublish.Publish(ctx, s)	
+		}
 	})
 
 	songs := songQ.Consume(false, 10)
@@ -62,9 +81,9 @@ func ScrapeLyrics() {
 			if err == nil {
 				songLink := s.Url
 				songMap[songLink] = s
-				if !database.Exists(utils.SONG_BLOOM_FILTER_NAME, s.Name + s.Artist.Name) {
+				if !database.Exists(utils.SONG_BLOOM_FILTER_NAME, s.Name+s.Artist.Name) {
 					c.Visit(songLink)
-				  time.Sleep(100 * time.Millisecond)	
+					time.Sleep(100 * time.Millisecond)
 				}
 				song.Ack(false)
 			} else {
