@@ -11,6 +11,7 @@ import (
 	"github.com/2307vivek/song-lyrics/queue"
 	"github.com/2307vivek/song-lyrics/types"
 	"github.com/2307vivek/song-lyrics/utils"
+	"github.com/2307vivek/song-lyrics/utils/api"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 )
@@ -60,6 +61,8 @@ func ScrapeLyrics() {
 
 	c.OnError(func(r *colly.Response, err error) {
 		link := r.Request.URL.String()
+
+		api.AppStatus.FailedUrls = append(api.AppStatus.FailedUrls, link)
 
 		song := songMap[link]
 

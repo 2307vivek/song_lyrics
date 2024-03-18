@@ -11,6 +11,7 @@ import (
 	"github.com/2307vivek/song-lyrics/queue"
 	"github.com/2307vivek/song-lyrics/types"
 	"github.com/2307vivek/song-lyrics/utils"
+	"github.com/2307vivek/song-lyrics/utils/api"
 	"github.com/gocolly/colly"
 )
 
@@ -58,6 +59,10 @@ func ScrapeArtists() {
 			}
 		})
 		database.AddToCache(utils.ARTIST_BLOOM_FILTER_NAME, artistLink)
+	})
+
+	c.OnError(func(r *colly.Response, err error) {
+		api.AppStatus.FailedUrls = append(api.AppStatus.FailedUrls, r.Request.URL.String())
 	})
 
 	artists := artistQ.Consume(false, 1)
