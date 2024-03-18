@@ -1,7 +1,7 @@
 package api
 
 import (
-	"sync/atomic"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,9 +19,6 @@ type ConnectionStatus struct {
 	RabbitMQ bool `json:"rabbit_mq"`
 }
 
-var countLyrics atomic.Int32
-var countArtist atomic.Int32
-
 var AppStatus Status = Status{}
 
 func InitAppStatus() {
@@ -35,12 +32,16 @@ func getStatus(c *gin.Context) {
 	c.IndentedJSON(200, AppStatus)
 }
 
+var mutex *sync.RWMutex = &sync.RWMutex{}
+
 func IncrementCountArtist() {
-	countArtist.Add(1)
-	AppStatus.ScrapedArtists = countArtist.Load()
+	mutex.Lock()
+	AppStatus.ScrapedArtists++
+	mutex.Unlock()
 }
 
 func IncrementCountLyrics() {
-	countLyrics.Add(1)
-	AppStatus.ScrapedLyrics = countArtist.Load()
+	mutex.Lock()
+	AppStatus.ScrapedLyrics++
+	mutex.Unlock()
 }
