@@ -5,6 +5,8 @@ import "github.com/gin-gonic/gin"
 type Status struct {
 	Connections ConnectionStatus `json:"connections"`
 	FailedUrls  []string         `json:"failed_urls"`
+	ScrapedLyrics int `json:"scraped_urls"`
+	ScrapedArtists int `json:"scraped_artists"`
 }
 
 type ConnectionStatus struct {
