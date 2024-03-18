@@ -7,6 +7,7 @@ import (
 	"github.com/2307vivek/song-lyrics/handler"
 	"github.com/2307vivek/song-lyrics/queue"
 	"github.com/2307vivek/song-lyrics/utils"
+	"github.com/2307vivek/song-lyrics/utils/api"
 	"github.com/joho/godotenv"
 )
 
@@ -15,6 +16,8 @@ func main() {
 	if instance != "lyrics" && instance != "artist" && instance != "artist_links" {
 		os.Exit(1)
 	}
+
+	go api.InitAppStatus()
 
 	err := godotenv.Load(".env")
 	utils.FailOnError(err, "Failed to load .env")
