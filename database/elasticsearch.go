@@ -2,6 +2,7 @@ package database
 
 import (
 	"github.com/2307vivek/song-lyrics/utils"
+	"github.com/2307vivek/song-lyrics/utils/api"
 	"github.com/elastic/go-elasticsearch/v7"
 )
 
@@ -16,6 +17,7 @@ func ConnectToElasticSearch(url string, username string, password string) {
 		Password: password,
 	})
 	utils.FailOnError(err, "Failed to connect to elastic search")
-
+	
+	api.AppStatus.Connections.Es = true
 	ES = client
 }

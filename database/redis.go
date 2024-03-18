@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/2307vivek/song-lyrics/utils"
+	"github.com/2307vivek/song-lyrics/utils/api"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -17,6 +18,8 @@ func ConnectToRedis(url string) {
 	Rdb = redis.NewClient(opt)
 
 	createContext()
+
+	api.AppStatus.Connections.Redis = true
 }
 
 func Exists(cache string, item string) bool {

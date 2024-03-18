@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/2307vivek/song-lyrics/utils"
+	"github.com/2307vivek/song-lyrics/utils/api"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -14,6 +15,8 @@ func ConnectToRabbitMq(url string) {
 	utils.FailOnError(err, "Failed to connect to rabbitmq.")
 
 	Conn = c
+
+	api.AppStatus.Connections.RabbitMQ = true
 }
 
 func createChannel(queueName string) (*amqp.Channel, *amqp.Queue) {
