@@ -1,8 +1,8 @@
 package api
 
 type Status struct {
-	Connections   ConnectionStatus   `json:"connections"`
-	FailedUrls    []string           `json:"failed_urls"`
+	Connections ConnectionStatus `json:"connections"`
+	FailedUrls  []string         `json:"failed_urls"`
 }
 
 type ConnectionStatus struct {
