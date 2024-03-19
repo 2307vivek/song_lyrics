@@ -22,7 +22,7 @@ func ConnectToRedis(url string) {
 	api.AppStatus.Connections.Redis = true
 }
 
-func Exists(cache string, item string) bool {
+func ExistsInCache(cache string, item string) bool {
 	exists :=  Rdb.BFExists(ctx, cache, item).Val()
 	return exists
 }
