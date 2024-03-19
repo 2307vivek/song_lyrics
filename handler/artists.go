@@ -77,7 +77,7 @@ func ScrapeArtists() {
 				queueLength := getQueueLength(vhost)
 				fmt.Printf("songQueueLen: %v\n", queueLength)
 				if queueLength < 8500 {
-					if !database.Exists(utils.ARTIST_BLOOM_FILTER_NAME, artistLink) {
+					if !database.CheckArtistExists(artistLink) {
 						fmt.Printf("artistLink: %v\n", artistLink)
 						c.Visit(artistLink)
 					}

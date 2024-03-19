@@ -56,7 +56,7 @@ func ScrapeLyrics() {
 
 		SongLyricStore <- songLyrics
 
-		database.AddToCache(utils.SONG_BLOOM_FILTER_NAME, songLyrics.Song.Name+songLyrics.Song.Artist.Name)
+		database.AddToCache(utils.SONG_BLOOM_FILTER_NAME, link)
 
 		api.IncrementCountLyrics()
 	})
@@ -71,7 +71,7 @@ func ScrapeLyrics() {
 		s, e := json.Marshal(song)
 
 		if e != nil {
-			songQPublish.Publish(ctx, s)	
+			songQPublish.Publish(ctx, s)
 		}
 	})
 
@@ -86,7 +86,7 @@ func ScrapeLyrics() {
 			if err == nil {
 				songLink := s.Url
 				songMap[songLink] = s
-				if !database.Exists(utils.SONG_BLOOM_FILTER_NAME, s.Name+s.Artist.Name) {
+				if !database.CheckSongExists(songLink) {
 					c.Visit(songLink)
 					time.Sleep(100 * time.Millisecond)
 				}
