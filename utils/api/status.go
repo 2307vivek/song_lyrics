@@ -25,7 +25,7 @@ func InitAppStatus() {
 	router := gin.Default()
 
 	router.GET("/status", getStatus)
-	router.Run(":8080")
+	router.Run("0.0.0.0:8080")
 }
 
 func getStatus(c *gin.Context) {
