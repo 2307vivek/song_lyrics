@@ -9,8 +9,8 @@ import (
 type Status struct {
 	Connections    ConnectionStatus `json:"connections"`
 	FailedUrls     []string         `json:"failed_urls"`
-	ScrapedLyrics  int32     `json:"scraped_urls"`
-	ScrapedArtists int32     `json:"scraped_artists"`
+	ScrapedLyrics  int32            `json:"scraped_urls"`
+	ScrapedArtists int32            `json:"scraped_artists"`
 }
 
 type ConnectionStatus struct {
@@ -25,7 +25,7 @@ func InitAppStatus() {
 	router := gin.Default()
 
 	router.GET("/status", getStatus)
-	router.Run("0.0.0.0:8080")
+	router.Run()
 }
 
 func getStatus(c *gin.Context) {
