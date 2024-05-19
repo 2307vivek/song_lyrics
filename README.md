@@ -1,6 +1,7 @@
 This repository contains the code for a distributed scraper to scrape song lyrics from the internet. 🎧🎧🎧
 
 ## Architecture
+![SongLyrics (1)](https://github.com/2307vivek/song_lyrics/assets/67380664/321f5a35-5cdd-4df5-ac6d-11dd990c2314)
 
 ## License
 ```
